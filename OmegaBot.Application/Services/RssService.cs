@@ -9,7 +9,7 @@ namespace OmegaBot.Application.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly AppSettings _appSettings;
-        private string? _lastItemId;
+        private static string? _lastItemId;
 
         public RssService(IHttpClientFactory httpClientFactory, AppSettings appSettings)
         {
@@ -35,7 +35,7 @@ namespace OmegaBot.Application.Services
             var itemMediaRss = (MediaRssFeedItem)latest.SpecificItem;
             var imgUrl = itemMediaRss.Media.FirstOrDefault()?.Url;
 
-            return LatestPostResponse.GetSuccessfulResponse(latest.Title, latest.Link, imgUrl);
+            return LatestPostResponse.GetSuccessfulResponse(latest.Title, latest.Link, imgUrl, latest.Id);
         }
     }
 }

@@ -6,14 +6,15 @@
         {
         }
 
-        public static LatestPostResponse GetSuccessfulResponse(string title, string link, string imageUrl)
+        public static LatestPostResponse GetSuccessfulResponse(string title, string link, string imageUrl, string itemId)
         {
             return new LatestPostResponse
             {
                 FetchSuccessful = true,
                 Title = title,
                 Link = link,
-                ImageUrl = imageUrl
+                ImageUrl = imageUrl,
+                ItemId = itemId
             };
         }
 
@@ -28,6 +29,7 @@
 
         public bool FetchSuccessful { get; init; }
         public string ErrorMessage { get; init; }
+        public string ItemId { get; init; }
         public string Title { get; init; }
         public string Link { get; init; }
         public string ImageUrl { get; init; }
