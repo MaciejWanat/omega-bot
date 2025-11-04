@@ -50,7 +50,7 @@ namespace OmegaBot.Commands.Background.BotActions
                             .WithFooter("Źródło: Facebook (Omega Poznań)")
                             .Build();
 
-                        await _logger.ApplicationLog($"Fetch successful, posting item with id {latestFetchResult.ItemId}", LogSeverity.Debug);
+                        await _logger.ApplicationLog($"Fetch successful, posting item with id {latestFetchResult.ItemId}");
                         await channel.SendMessageAsync("Wake up babe, new Danie Dnia just dropped", embed: embed);
                     }
                 }
