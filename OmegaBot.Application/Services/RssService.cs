@@ -1,6 +1,7 @@
 ﻿using CodeHollow.FeedReader;
 using CodeHollow.FeedReader.Feeds;
 using OmegaBot.Application.Services.Interfaces;
+using OmegaBot.Application.Services.Models;
 
 namespace OmegaBot.Application.Services
 {
@@ -16,7 +17,7 @@ namespace OmegaBot.Application.Services
             _appSettings = appSettings;
         }
 
-        public async Task<(string title, string link, string? imageUrl)?> GetLatestPostAsync()
+        public async Task<LatestPostResponse> GetLatestPostAsync()
         {
             var client = _httpClientFactory.CreateClient();
 
@@ -27,13 +28,14 @@ namespace OmegaBot.Application.Services
 
             if (latest.Id == _lastItemId)
             {
-                return null;
+                return LatestPostResponse.GetFailedResponse($"Item with id {_lastItemId} is the latest item, skipping.");
             }
             _lastItemId = latest.Id;
 
             var itemMediaRss = (MediaRssFeedItem)latest.SpecificItem;
             var imgUrl = itemMediaRss.Media.FirstOrDefault()?.Url;
-            return (latest.Title, latest.Link, imgUrl);
+
+            return LatestPostResponse.GetSuccessfulResponse(latest.Title, latest.Link, imgUrl);
         }
     }
 }

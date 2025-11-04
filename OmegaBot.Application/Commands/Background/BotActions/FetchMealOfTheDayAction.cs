@@ -36,22 +36,26 @@ namespace OmegaBot.Commands.Background.BotActions
             {
                 await _logger.ApplicationLog("Starting fetching for meal of the day");
 
-                var latest = await _rssService.GetLatestPostAsync();
-                if (latest != null)
+                var latestFetchResult = await _rssService.GetLatestPostAsync();
+                if (latestFetchResult!.FetchSuccessful)
                 {
                     var channel = _client.GetChannel(_appSettings.PostChannelId) as IMessageChannel;
                     if (channel != null)
                     {
                         var embed = new EmbedBuilder()                         
                             .WithTitle("Omeguniowe danie dnia")
-                            .WithUrl(latest.Value.link)
+                            .WithUrl(latestFetchResult.Link)
                             .WithColor(Color.Blue)
-                            .WithImageUrl(latest.Value.imageUrl)
+                            .WithImageUrl(latestFetchResult.ImageUrl)
                             .WithFooter("Źródło: Facebook (Omega Poznań)")
                             .Build();
 
                         await channel.SendMessageAsync("Wake up babe, new Danie Dnia just dropped", embed: embed);
                     }
+                }
+                else 
+                {                     
+                    await _logger.ApplicationLog($"Fetch result unsuccessful. Message: {latestFetchResult.ErrorMessage}", LogSeverity.Error);
                 }
             }
             catch (Exception e)
