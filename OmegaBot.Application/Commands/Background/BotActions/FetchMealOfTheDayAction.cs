@@ -15,19 +15,23 @@ namespace OmegaBot.Commands.Background.BotActions
 
         private readonly IRssService _rssService;
 
+        private readonly IDishOfDayRepository _dishOfDayRepository;
+
         public string Cron { get; }
 
         public FetchMealOfTheDayAction(
             AppSettings appSettings,
             IDiscordSocketClientProvider discordSocketClientProvider, 
             IDiscordLogger logger,
-            IRssService rssService)
+            IRssService rssService,
+            IDishOfDayRepository dishOfDayRepository)
         {
             _appSettings = appSettings;
             _logger = logger;
             _client = discordSocketClientProvider.GetDiscordSocketClient();
             Cron = appSettings.FetchCron;
             _rssService = rssService;
+            _dishOfDayRepository = dishOfDayRepository;
         }
 
         public async Task ExecuteAction()
@@ -52,6 +56,7 @@ namespace OmegaBot.Commands.Background.BotActions
 
                         await _logger.ApplicationLog($"Fetch successful, posting item with id {latestFetchResult.ItemId}");
                         await channel.SendMessageAsync("Wake up babe, new Danie Dnia just dropped", embed: embed);
+                        await _dishOfDayRepository.SaveImage(latestFetchResult.ImageUrl);
                     }
                 }
                 else 

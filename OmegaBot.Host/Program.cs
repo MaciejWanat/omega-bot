@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using OmegaBot.Application.Services;
 using OmegaBot.Application.Services.Interfaces;
+using OmegaBot.Infrastructure;
 
 namespace OmegaBot
 {
@@ -65,6 +66,7 @@ namespace OmegaBot
 
                     services
                         .AddSingleton(config.Get<AppSettings>())
+                        .AddSingleton<IDishOfDayRepository, DishOfDayRepository>()
                         .AddSingleton<IDiscordLogger, DiscordLogger>()
                         .AddSingleton<IDiscordSocketClientProvider, DiscordSocketClientProvider>()
                         .AddSingleton<IRssService, RssService>()

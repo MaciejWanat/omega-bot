@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace OmegaBot.Services
+﻿namespace OmegaBot.Services
 {
     public static class RandomNumbersProvider
     {

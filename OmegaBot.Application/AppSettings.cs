@@ -7,5 +7,7 @@
         public string AuthToken { get; init; }
         public string FetchCron { get; init; }
         public string RssFeed { get; init; }
+        public string ImagesDirectory { get; init; }
+        public int MaxImageSizeMb { get; init; }
     }
 }

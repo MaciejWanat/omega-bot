@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\OmegaBot.Application\OmegaBot.Application.csproj" />
     <ProjectReference Include="..\OmegaBot.Domain\OmegaBot.Domain.csproj" />
+    <ProjectReference Include="..\OmegaBot.Infrastructure\OmegaBot.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
