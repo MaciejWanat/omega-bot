@@ -31,31 +31,62 @@ namespace OmegaBot.Commands.Background
         private async Task ExecuteCronAction(CancellationToken cancellationToken)
         {
             var action = _backgroundAction as IBackgroundCronBotAction;
-            var now = DateTime.Now;
-            var checkIntervalMinutes = TimeSpan.FromMinutes(1).TotalMinutes;
-            var schedule = CrontabSchedule.Parse(action.Cron);
-            var nextRun = schedule.GetNextOccurrence(now);
+            if (action is null)
+            {
+                return;
+            }
+
+            // Normalize cron expressions that may omit the seconds/fields (accept both 4- and 5-field crons).
+            var cronExpression = action.Cron?.Trim() ?? throw new InvalidOperationException("Cron expression is null");
+            var parts = cronExpression.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 4)
+            {
+                cronExpression = cronExpression + " *";
+            }
+            else if (parts.Length != 5)
+            {
+                throw new FormatException($"Invalid cron expression: '{action.Cron}'");
+            }
+
+            var schedule = CrontabSchedule.Parse(cronExpression);
+            var nextRun = schedule.GetNextOccurrence(DateTime.Now);
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    now = DateTime.Now;
+                    var now = DateTime.Now;
+                    var delay = nextRun - now;
 
-                    if (now > nextRun)
+                    if (delay > TimeSpan.Zero)
                     {
-                        await _logger.ApplicationLog($"{now} - running background job - {action.Name}");
-
-                        await action.ExecuteAction();
-                        nextRun = schedule.GetNextOccurrence(now);
+                        await Task.Delay(delay, cancellationToken);
                     }
+                    else if (delay < TimeSpan.Zero)
+                    {
+                        nextRun = schedule.GetNextOccurrence(DateTime.Now);
+                        continue;
+                    }
+
+                    await _logger.ApplicationLog($"{DateTime.Now} - running background job - {action.Name}");
+                    await action.ExecuteAction();
+
+                    nextRun = schedule.GetNextOccurrence(nextRun);
+
+                    if (nextRun <= DateTime.Now)
+                    {
+                        nextRun = schedule.GetNextOccurrence(DateTime.Now);
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    // Shutdown requested, exit loop gracefully.
+                    break;
                 }
                 catch (Exception e)
                 {
                     await _logger.ApplicationLog($"Error in background job - {action.Name}. {e.Message}", LogSeverity.Error);
                 }
-
-                await Task.Delay(TimeSpan.FromMinutes(checkIntervalMinutes), cancellationToken);
             }
         }
     }
